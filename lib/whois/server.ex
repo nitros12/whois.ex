@@ -5,6 +5,8 @@ defmodule Whois.Server do
 
   @all File.read!(Application.app_dir(:whois, "priv/tld.csv"))
        |> String.trim()
+       # bloody windows file endings
+       |> String.replace("\r\n", "\n")
        |> String.split("\n")
        |> Enum.map(fn line ->
          [tld, host] = String.split(line, ",")
