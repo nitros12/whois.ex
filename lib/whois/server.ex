@@ -15,9 +15,18 @@ defmodule Whois.Server do
   @spec all :: map
   def all, do: @all
 
+  @spec split_right(String.t(), String.t()) :: {String.t(), String.t()}
+  defp split_right(s, pat) do
+    pieces = String.split(s, pat)
+
+    {last, rest} = List.pop_at(pieces, -1)
+
+    {Enum.join(rest, pat), last}
+  end
+
   @spec for(String.t()) :: {:ok, t} | :error
   def for(domain) do
-    [_, tld] = String.split(domain, ".", parts: 2)
+    {_, tld} = split_right(domain, ".")
     Map.fetch(@all, tld)
   end
 end

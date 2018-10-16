@@ -3,6 +3,8 @@ defmodule Whois do
 
   @type lookup_option :: {:server, String.t() | Server.t()}
 
+  @indented_domains [".uk"]
+
   @doc """
   Queries the appropriate WHOIS server for the domain name `domain` and returns
   a `{:ok, %Whois.Record{}}` tuple on success, and `{:error, reason}` on
@@ -11,11 +13,15 @@ defmodule Whois do
   @spec lookup(String.t(), [lookup_option]) :: {:ok, Record.t()} | {:error, atom}
   def lookup(domain, opts \\ []) do
     with {:ok, raw} <- lookup_raw(domain, opts) do
-      {:ok, Record.parse(raw)}
+      if Enum.any?(@indented_domains, & String.ends_with?(domain, &1)) do
+        {:ok, Record.parse_indentation_style(raw)}
+      else
+        {:ok, Record.parse(raw)}
+      end
     end
   end
 
-  defp lookup_raw(domain, opts) do
+  def lookup_raw(domain, opts) do
     server =
       case Keyword.fetch(opts, :server) do
         {:ok, host} when is_binary(host) -> {:ok, %Server{host: host}}
