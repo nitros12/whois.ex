@@ -216,6 +216,8 @@ defmodule Whois.Record do
     %{record | nameservers: nameservers}
   end
 
+  @nameserver_regex ~r/(?<domain>(\w|\d|\.)+)(\s*.+)?/
+
   # for parsing responses that use indentation and headers
   @doc """
   Parses the raw response with the indentation style parser.
@@ -243,7 +245,9 @@ defmodule Whois.Record do
           %{record | domain: v}
 
         "name servers" ->
-          %{record | nameservers: v}
+          name_servers = Enum.map(v, & Regex.named_captures(@nameserver_regex, &1)["domain"])
+
+          %{record | nameservers: name_servers}
 
         "registrar" ->
           %{record | registrar: v}
