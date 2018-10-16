@@ -31,6 +31,7 @@ defmodule Whois do
 
     case server do
       {:ok, %Server{host: host}} ->
+        IO.inspect(String.to_charlist(host), label: "host")
         with {:ok, socket} <-
                :gen_tcp.connect(String.to_charlist(host), 43, [:binary, active: false]),
              :ok <- :gen_tcp.send(socket, [domain, "\r\n"]) do
